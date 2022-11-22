@@ -29,10 +29,10 @@
         "simpleshulkerpreview.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.14.9",
-        "minecraft": "~1.19"
+      "fabricloader": ">=0.7.1",
+      "minecraft": "${minecraft_dependency}"
     },
     "recommends": {
-        "modmenu": ">=4.0.0"
+      "modmenu": "${modmenu_recommends}"
     }
 }

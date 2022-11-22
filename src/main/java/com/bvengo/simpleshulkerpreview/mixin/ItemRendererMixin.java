@@ -1,7 +1,6 @@
 package com.bvengo.simpleshulkerpreview.mixin;
 
 import com.bvengo.simpleshulkerpreview.RegexGroup;
-import com.bvengo.simpleshulkerpreview.SimpleShulkerPreviewMod;
 import com.bvengo.simpleshulkerpreview.Utils;
 import com.bvengo.simpleshulkerpreview.config.ConfigOptions;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -12,7 +11,10 @@ import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -55,30 +57,56 @@ public abstract class ItemRendererMixin {
 			smallTranslateY = config.stackedTranslateY;
 			smallTranslateZ = config.stackedTranslateZ * 10;
 		}
-		
+
 		adjustSize = true;
 		renderGuiItemIcon(displayItem, x, y);
 		adjustSize = false;
 	}
 
+	//#if MC<11700
+//$$	@ModifyArg(method = "renderGuiItemModel",
+//$$			at = @At(value = "INVOKE",target = "Lcom/mojang/blaze3d/systems/RenderSystem;translatef(FFF)V", ordinal = 0), index = 2)
+	//#elseif MC<=11902
 	@ModifyArg(method = "renderGuiItemModel",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", ordinal = 0),
-		index = 2)
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", ordinal = 0), index = 2)
+	//#else
+//$$	@ModifyArg(method = "renderGuiItemModel",
+//$$		at = @At(value = "INVOKE",target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", ordinal = 0), index = 2)
+	//#endif
+	//#if MC >=11700 && MC <=11902
 	private double injectedTranslateZ(double z) {
 		return adjustSize ? (z + smallTranslateZ) : z;
+		//#else
+//$$	private float injectedTranslateZ(float z) {
+//$$	return adjustSize ? (z + (float)smallTranslateZ) : z;
+//#endif
 	}
 
+	//#if MC <11700
+//$$	@ModifyArgs(method = "renderGuiItemModel",
+//$$			at = @At(value = "INVOKE", target ="Lcom/mojang/blaze3d/systems/RenderSystem;translatef(FFF)V", ordinal = 1))
+	//#elseif MC <=11902
 	@ModifyArgs(method = "renderGuiItemModel",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", ordinal = 1))
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V", ordinal = 1))
+	//#else
+//$$	@ModifyArgs(method = "renderGuiItemModel",
+//$$			at = @At(value = "INVOKE", target ="Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", ordinal = 1))
+	//#endif
 	private void injectedTranslateXY(Args args) {
-		if(adjustSize) {
+		if (adjustSize) {
 			args.set(0, smallTranslateX);
 			args.set(1, smallTranslateY);
 		}
 	}
 
 	@ModifyArgs(method = "renderGuiItemModel",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V", ordinal = 1))
+			at = @At(value = "INVOKE", target =
+					//#if MC<11700
+					//$$ "Lcom/mojang/blaze3d/systems/RenderSystem;scalef(FFF)V"
+					//#else
+					"Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V"
+					//#endif
+					, ordinal = 1))
 	private void injectedScale(Args args) {
 		if(adjustSize) {
 			args.set(0, smallScale);

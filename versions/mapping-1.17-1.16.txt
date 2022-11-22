@@ -1,0 +1,8 @@
+com.google.gson.JsonParser parseReader() com.google.gson.JsonParser parse()
+
+net.minecraft.server.command.ReloadCommand tryReloadDataPacks() method_29480()
+
+net.minecraft.item.ItemStack isItemBarVisible() net.minecraft.item.ItemStack isDamaged()
+net.minecraft.item.ItemStack getNbt() net.minecraft.item.ItemStack getTag()
+net.minecraft.item.ItemStack fromNbt() net.minecraft.item.ItemStack fromTag()
+net.minecraft.item.ItemStack hasNbt() net.minecraft.item.ItemStack hasTag()
